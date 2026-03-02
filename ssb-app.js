@@ -7,7 +7,8 @@
     STEP2_URL: "https://www.siamtham.com/p/ssb-page-2.html",
     STEP3_URL: "https://www.siamtham.com/p/ssb-page3.html",
     STEP4_URL: "https://www.siamtham.com/p/ssb-page-4.html",
-    GOOGLE_SHEET_WEBAPP_URL: "const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzZyMF0WCHrLiMbFctTl1EIko1qoXmYaFclGiNL3eBzvXc1v0nXfPtX6sGs8NRPeMpY/exec";",
+
+    GOOGLE_SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbzZyMF0WCHrLiMbFctTl1EIko1qoXmYaFclGiNL3eBzvXc1v0nXfPtX6sGs8NRPeMpY/exec",
 
     STORE_KEY: "ssb_order_v1",
     AGENT_CARD_KEY: "ssb_agent_card_v1",
@@ -17,7 +18,7 @@
     COMPANY_ADDRESS: "54 ซอย 53 ถนนพุทธมณฑลสาย 1 แขวงฉิมพลี เขตตลิ่งชัน กรุงเทพฯ 10170",
     COMPANY_INFO_LINE: "ข้อมูลเพิ่มเติม: www.siamtham.com (ติดต่อเรา)"
   };
-
+  
   // ===== DATA =====
   const BOX_OPTIONS = [
     { size:"เล็ก", price:10000, desc:"เหมาะสำหรับพกพา • กระทัดรัด" },
@@ -1169,4 +1170,5 @@
   document.addEventListener("DOMContentLoaded", boot);
 
 })();
+
 
