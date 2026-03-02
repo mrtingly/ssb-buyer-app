@@ -152,8 +152,7 @@
 #ssbApp .sum strong{ font-size:15px; }
 #ssbApp .sum span{ font-size:13px; color:var(--muted); }
 
-#ssbApp 
-.toast{
+#ssbApp .toast{
   position:fixed;
   left:50%;
   transform:translateX(-50%);
@@ -191,4 +190,5 @@
   .ssb-noPrint{ display:none !important; }
   #ssbInvoiceWrap{ display:block !important; }
 }
+
 
