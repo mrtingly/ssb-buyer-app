@@ -157,10 +157,10 @@
   left:50%;
   transform:translateX(-50%);
   bottom:100px;
-  background:#e6f2ff;     /* ฟ้าน้ำเงินอ่อน */
-  color:#0b1b2b;          /* ตัวอักษรน้ำเงินเข้ม */
+  background:#e6f2ff !important;  /* ฟ้าน้ำเงินอ่อน */
+  color:#0b1b2b !important;   /* ตัวอักษรน้ำเงินเข้ม */
   padding:14px 20px;
-  border-radius:14px;
+  border-radius:14px !important;
   font-size:16px;
   box-shadow:0 6px 18px rgba(0,0,0,.15);
   display:none;
@@ -190,6 +190,7 @@
   .ssb-noPrint{ display:none !important; }
   #ssbInvoiceWrap{ display:block !important; }
 }
+
 
 
 
