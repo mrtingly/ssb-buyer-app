@@ -7,7 +7,7 @@
     STEP2_URL: "https://www.siamtham.com/p/ssb-page-2.html",
     STEP3_URL: "https://www.siamtham.com/p/ssb-page3.html",
     STEP4_URL: "https://www.siamtham.com/p/ssb-page-4.html",
-    GOOGLE_SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbx1W_te9YHhs8Jh3AVgPkcjqmZpOhoan49q01-D81Jtz2SDAnm6e9Qlk5-gAZh6OOI/exec",
+    GOOGLE_SHEET_WEBAPP_URL: "const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzZyMF0WCHrLiMbFctTl1EIko1qoXmYaFclGiNL3eBzvXc1v0nXfPtX6sGs8NRPeMpY/exec";",
 
     STORE_KEY: "ssb_order_v1",
     AGENT_CARD_KEY: "ssb_agent_card_v1",
@@ -1169,3 +1169,4 @@
   document.addEventListener("DOMContentLoaded", boot);
 
 })();
+
