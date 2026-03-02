@@ -1167,4 +1167,5 @@
   }
 
   document.addEventListener("DOMContentLoaded", boot);
+
 })();
