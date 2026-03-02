@@ -1,0 +1,192 @@
+/* SSB APP CSS (SCOPED) — ไม่แตะ Blogger นอก #ssbApp */
+#ssbApp{
+  --bg:#f6fbff;
+  --card:#ffffff;
+  --ink:#0b1b2b;
+  --muted:#5c6b7a;
+  --primary:#2a7de1;
+  --primary2:#0f5fc4;
+  --border:#d9e7f7;
+  --shadow:0 8px 24px rgba(11,27,43,.08);
+  --radius:18px;
+
+  font-family: system-ui,-apple-system,"Segoe UI",Roboto,Arial,"Noto Sans Thai",sans-serif;
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.45;
+}
+
+#ssbApp *{ box-sizing:border-box; }
+
+#ssbApp .ssb-shell{
+  max-width:980px;
+  margin:0 auto;
+  padding:12px 12px 110px;
+}
+
+#ssbApp .ssb-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+  margin:12px 0;
+}
+
+#ssbApp .ssb-top{
+  display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+}
+#ssbApp .ssb-brand{ display:flex; gap:10px; align-items:center; }
+#ssbApp .ssb-logo{
+  width:44px; height:44px; border-radius:14px;
+  background:linear-gradient(135deg,#e6f2ff,#b9dcff);
+  border:1px solid var(--border);
+  display:grid; place-items:center;
+  font-weight:900; color:var(--primary2);
+}
+#ssbApp h1{ font-size:18px; margin:0; }
+#ssbApp .ssb-sub{ margin:2px 0 0; color:var(--muted); font-size:14px; }
+
+#ssbApp .ssb-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+#ssbApp .btn{
+  border:1px solid var(--border);
+  background:#fff;
+  color:var(--ink);
+  padding:12px 14px;
+  border-radius:14px;
+  min-height:44px;
+  cursor:pointer;
+  font-weight:900;
+}
+#ssbApp .btn.primary{
+  background:var(--primary);
+  border-color:var(--primary);
+  color:#fff;
+}
+#ssbApp .btn.primary:disabled{ opacity:.45; cursor:not-allowed; }
+
+#ssbApp .ssb-steps{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+#ssbApp .pill{
+  font-size:13px; padding:7px 10px; border-radius:999px;
+  border:1px solid var(--border); background:#fff; color:var(--muted);
+}
+#ssbApp .pill.active{ border-color:var(--primary); color:var(--primary2); font-weight:900; }
+
+#ssbApp .grid-3{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+#ssbApp .grid-2{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+@media (max-width:860px){
+  #ssbApp .grid-3{ grid-template-columns:1fr; }
+  #ssbApp .grid-2{ grid-template-columns:1fr; }
+}
+
+#ssbApp .ph{
+  height:120px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#ffffff,#d7ecff);
+  border:1px dashed #b8d8ff;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--primary2);
+  font-weight:900;
+}
+
+#ssbApp .row{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+#ssbApp .title{ font-size:18px; margin:0; }
+#ssbApp .hint{ margin:2px 0 0; color:var(--muted); font-size:14px; }
+#ssbApp .price{ font-size:18px; font-weight:900; color:var(--primary2); }
+
+#ssbApp .selectBtn{
+  width:100%;
+  min-height:48px;
+  border-radius:16px;
+  border:2px solid var(--border);
+  background:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+#ssbApp .selectBtn.active{
+  border-color:var(--primary);
+  background:rgba(42,125,225,.08);
+  color:var(--primary2);
+}
+
+#ssbApp label{ font-weight:900; }
+#ssbApp input, #ssbApp textarea, #ssbApp select{
+  width:100%;
+  min-height:48px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  padding:10px 12px;
+  font-size:16px;
+  background:#fff;
+}
+#ssbApp textarea{ min-height:110px; resize:vertical; }
+
+#ssbApp .chips{ display:flex; gap:10px; flex-wrap:wrap; }
+#ssbApp .chip{
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:999px;
+  padding:10px 12px;
+  min-height:44px;
+  cursor:pointer;
+  font-weight:900;
+}
+#ssbApp .chip.active{
+  border-color:var(--primary);
+  background:rgba(42,125,225,.08);
+  color:var(--primary2);
+}
+
+#ssbApp .sticky{
+  position:fixed; left:0; right:0; bottom:0;
+  background:rgba(255,255,255,.92);
+  border-top:1px solid var(--border);
+  backdrop-filter: blur(8px);
+  padding:10px 12px;
+  z-index:9999;
+}
+#ssbApp .stickyInner{
+  max-width:980px; margin:0 auto;
+  display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+}
+#ssbApp .sum strong{ font-size:15px; }
+#ssbApp .sum span{ font-size:13px; color:var(--muted); }
+
+#ssbApp .toast{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom:86px;
+  z-index:10000;
+  background:#0b1b2b; color:#fff;
+  padding:10px 12px;
+  border-radius:14px;
+  box-shadow:0 10px 26px rgba(0,0,0,.18);
+  display:none;
+  max-width:min(92vw,520px);
+  font-size:14px;
+}
+
+#ssbApp .summaryBox{
+  border:1px dashed #b8d8ff;
+  background:rgba(42,125,225,.06);
+  border-radius:16px;
+  padding:12px;
+}
+#ssbApp .sumline{ display:flex; justify-content:space-between; gap:10px; padding:6px 0; }
+#ssbApp .sumline span{ color:var(--muted); }
+#ssbApp .sumline strong{ font-weight:900; }
+#ssbApp .total{ font-size:18px; color:var(--primary2); }
+
+#ssbApp .preview{
+  margin-top:10px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:10px;
+  background:#fff;
+}
+#ssbApp .preview img{ max-width:100%; height:auto; border-radius:12px; display:block; }
+
+/* Print invoice only (Invoice จะถูกสร้างใน Step 4) */
+@media print{
+  .ssb-noPrint{ display:none !important; }
+  #ssbInvoiceWrap{ display:block !important; }
+}

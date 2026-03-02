@@ -1,0 +1,1170 @@
+(function(){
+  "use strict";
+
+  // ===== CONFIG (คุณแก้ทีหลังได้) =====
+  const CFG = {
+    STEP1_URL: "https://www.siamtham.com/p/ssb-page-1.html",
+    STEP2_URL: "https://www.siamtham.com/p/ssb-page-2.html",
+    STEP3_URL: "https://www.siamtham.com/p/ssb-page3.html",
+    STEP4_URL: "https://www.siamtham.com/p/ssb-page-4.html",
+    GOOGLE_SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbx1W_te9YHhs8Jh3AVgPkcjqmZpOhoan49q01-D81Jtz2SDAnm6e9Qlk5-gAZh6OOI/exec",
+
+    STORE_KEY: "ssb_order_v1",
+    AGENT_CARD_KEY: "ssb_agent_card_v1",
+
+    COMPANY_QR_TARGET_URL: "https://www.siamtham.com",
+    COMPANY_NAME: "บริษัท สยามทำ จำกัด",
+    COMPANY_ADDRESS: "54 ซอย 53 ถนนพุทธมณฑลสาย 1 แขวงฉิมพลี เขตตลิ่งชัน กรุงเทพฯ 10170",
+    COMPANY_INFO_LINE: "ข้อมูลเพิ่มเติม: www.siamtham.com (ติดต่อเรา)"
+  };
+
+  // ===== DATA =====
+  const BOX_OPTIONS = [
+    { size:"เล็ก", price:10000, desc:"เหมาะสำหรับพกพา • กระทัดรัด" },
+    { size:"กลาง", price:15000, desc:"สมดุล • ใช้งานทั่วไป" },
+    { size:"ใหญ่", price:20000, desc:"จุเยอะ • จัดเต็มความปลอดภัย" }
+  ];
+
+  const OUTSIDE_CATALOG = [
+    { type:"หนังวัว", basePrice:2500, colors:["ดำ","น้ำตาล","ครีม","น้ำเงินสว่าง"] },
+    { type:"หนังจระเข้", basePrice:12000, colors:["ดำ","น้ำตาลเข้ม","เขียวเข้ม","น้ำเงินสว่าง"] },
+    { type:"หนังนกกระจอเทศ", basePrice:15000, colors:["ดำ","เทา","ครีม","น้ำเงินสว่าง"] }, // ห้ามหาย
+    { type:"หนังเทียมพรีเมียม", basePrice:1800, colors:["ดำ","เทา","ครีม","น้ำเงินสว่าง"] }
+  ];
+
+  const INSIDE_CATALOG = [
+    { type:"กำมะหยี่พรีเมียม", basePrice:1200, colors:["ดำ","เทา","ครีม","น้ำเงินสว่าง"] },
+    { type:"ไมโครไฟเบอร์", basePrice:900, colors:["ดำ","เทาอ่อน","ครีม","น้ำเงินสว่าง"] },
+    { type:"ผ้าซาติน", basePrice:1100, colors:["ดำ","ครีม","แดงไวน์","น้ำเงินสว่าง"] },
+    { type:"หนังกลับ", basePrice:1400, colors:["ดำ","เทา","น้ำตาล","น้ำเงินสว่าง"] }
+  ];
+
+  const LOCK = { type:"Fingerprint (สแกนนิ้วมือ)", price:3500 };
+
+  // แก้ไขง่าย: เพิ่มรุ่น Samsung ทีหลังได้
+  const DEVICE_CATALOG = {
+    categories: [
+      { key:"APPLE_IPHONE",  label:"Apple iPhone (iOS)" },
+      { key:"APPLE_IPAD",    label:"Apple iPad (iPadOS)" },
+      { key:"SAMSUNG_PHONE", label:"Samsung Phone (Android)" },
+      { key:"SAMSUNG_TABLET",label:"Samsung Tablet (Android)" }
+    ],
+    items: {
+      APPLE_IPHONE: {
+        os:"iOS",
+        type:"iPhone",
+        models: [
+          { name:"iPhone 13", colors:["ดำ","ขาว","น้ำเงินสว่าง","แดง"], storages:["128GB","256GB","512GB"], priceMap:{ "128GB":21900, "256GB":25900, "512GB":32900 } },
+          { name:"iPhone 14", colors:["ดำ","ขาว","น้ำเงินสว่าง","ม่วง"], storages:["128GB","256GB","512GB"], priceMap:{ "128GB":24900, "256GB":28900, "512GB":35900 } },
+          { name:"iPhone 15", colors:["ดำ","ขาว","น้ำเงินสว่าง","ชมพู"], storages:["128GB","256GB","512GB"], priceMap:{ "128GB":29900, "256GB":33900, "512GB":40900 } },
+          { name:"iPhone 16", colors:["ดำ","ขาว","น้ำเงินสว่าง","เขียว"], storages:["128GB","256GB","512GB"], priceMap:{ "128GB":32900, "256GB":36900, "512GB":43900 } },
+          { name:"iPhone 17", colors:["ดำ","ขาว","น้ำเงินสว่าง","เทา"], storages:["128GB","256GB","512GB"], priceMap:{ "128GB":35900, "256GB":39900, "512GB":46900 } },
+          { name:"iPhone 17 Pro", colors:["ดำ","เงิน","น้ำเงินสว่าง","ไทเทเนียม"], storages:["256GB","512GB","1TB"], priceMap:{ "256GB":45900, "512GB":52900, "1TB":62900 } },
+          { name:"iPhone 17 Pro Max", colors:["ดำ","เงิน","น้ำเงินสว่าง","ไทเทเนียม"], storages:["256GB","512GB","1TB"], priceMap:{ "256GB":49900, "512GB":56900, "1TB":66900 } }
+        ]
+      },
+      APPLE_IPAD: { // บังคับ: Cellular เท่านั้น
+        os:"iPadOS",
+        type:"iPad",
+        models: [
+          { name:"iPad mini A17 Pro (Cellular)", colors:["เทาสเปซเกรย์","สตาร์ไลท์","น้ำเงินสว่าง","ม่วงอ่อน"], storages:["128GB","256GB","512GB"], priceMap:{ "128GB":26900, "256GB":30900, "512GB":37900 } }
+        ]
+      },
+      SAMSUNG_PHONE: {
+        os:"Android",
+        type:"Samsung Phone",
+        models: [
+          { name:"Galaxy S24", colors:["ดำ","เทา","ครีม","น้ำเงินสว่าง"], storages:["256GB","512GB"], priceMap:{ "256GB":29900, "512GB":35900 } },
+          { name:"Galaxy A55", colors:["ดำ","ม่วง","ครีม","น้ำเงินสว่าง"], storages:["128GB","256GB"], priceMap:{ "128GB":13900, "256GB":15900 } }
+        ]
+      },
+      SAMSUNG_TABLET: {
+        os:"Android",
+        type:"Samsung Tablet",
+        models: [
+          { name:"Galaxy Tab S9 FE", colors:["เทา","เงิน","น้ำเงินสว่าง"], storages:["128GB","256GB"], priceMap:{ "128GB":16900, "256GB":19900 } },
+          { name:"Galaxy Tab A9+", colors:["เทา","เงิน","น้ำเงินสว่าง"], storages:["64GB","128GB"], priceMap:{ "64GB":7990, "128GB":9990 } }
+        ]
+      }
+    }
+  };
+
+  // ===== UTIL =====
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const nowISO = () => new Date().toISOString();
+  const money = (n) => Number(n||0).toLocaleString("th-TH");
+  const safeParse = (s) => { try{return JSON.parse(s);}catch(e){return null;} };
+
+  function sanitizeText(s){
+    return String(s==null?"":s).replace(/\r\n/g,"\n").replace(/\r/g,"\n").trim();
+  }
+  function sanitizeNumber(s, defVal){
+    const n = Number(String(s==null?"":s).trim());
+    return isFinite(n) ? n : defVal;
+  }
+
+  function ensureOrder(){
+    const raw = localStorage.getItem(CFG.STORE_KEY);
+    const obj = raw ? safeParse(raw) : null;
+    if(obj && obj.meta && obj.customer && obj.agent && obj.box && obj.materials && obj.lock_system && obj.device && obj.pricing){
+      return obj;
+    }
+    const created = nowISO();
+    const orderId = "SSB-" + Date.now() + "-" + Math.floor(Math.random()*900+100);
+    const fresh = {
+      meta:{ order_id:orderId, created_at:created, updated_at:created },
+      customer:{ full_name:"", phone:"", email:"", shipping_address:"" },
+      agent:{ agent_name:"", agent_phone:"", agent_code:"" },
+      box:{ size:"", price:0 },
+      materials:{
+        outside:{ type:"", color:"", price:0 },
+        inside:{ type:"", color:"", price:0 }
+      },
+      lock_system:{ type:"", price:0 },
+      device:{ category:"", os:"", type:"", model:"", color:"", storage:"", price:0 },
+      pricing:{ qty:1, subtotal:0, vat_rate:0.07, vat:0, grand_total:0, commission_rate:0, commission:0 }
+    };
+    localStorage.setItem(CFG.STORE_KEY, JSON.stringify(fresh));
+    return fresh;
+  }
+  function saveOrder(o){
+    o.meta.updated_at = nowISO();
+    localStorage.setItem(CFG.STORE_KEY, JSON.stringify(o));
+  }
+
+  function computePricing(order){
+    const qty = Math.max(1, Math.floor(Number(order.pricing.qty||1)));
+    const unit =
+      Number(order.box.price||0) +
+      Number(order.materials.outside.price||0) +
+      Number(order.materials.inside.price||0) +
+      Number(order.lock_system.price||0) +
+      Number(order.device.price||0);
+
+    const subtotal = unit * qty;
+    const vatRate = 0.07;
+    const vat = subtotal * vatRate;
+    const grand = subtotal + vat;
+
+    const cr = Number(order.pricing.commission_rate || 0);
+    const commission = subtotal * cr;
+
+    order.pricing.qty = qty;
+    order.pricing.subtotal = subtotal;
+    order.pricing.vat_rate = vatRate;
+    order.pricing.vat = vat;
+    order.pricing.grand_total = grand;
+    order.pricing.commission = commission;
+    return order;
+  }
+
+  function toast(root, msg){
+    const t = $(".toast", root);
+    t.textContent = msg;
+    t.style.display = "block";
+    clearTimeout(toast._tm);
+    toast._tm = setTimeout(()=>{ t.style.display="none"; }, 2400);
+  }
+
+  function translateThisPage(){
+    const u = window.location.href;
+    const gt = "https://translate.google.com/translate?sl=auto&tl=en&u=" + encodeURIComponent(u);
+    window.open(gt, "_blank", "noopener");
+  }
+
+  // ===== UI SHELL =====
+  function renderShell(step){
+    const app = document.getElementById("ssbApp");
+    app.innerHTML = `
+      <div class="ssb-shell">
+        <div class="ssb-card ssb-noPrint">
+          <div class="ssb-top">
+            <div class="ssb-brand">
+              <div class="ssb-logo">SSB</div>
+              <div>
+                <h1>SSB Blogger Ecommerce</h1>
+                <div class="ssb-sub">Step ${step}/4 — ระบบสั่งซื้อพร้อมออก Invoice</div>
+              </div>
+            </div>
+            <div class="ssb-actions">
+              <button class="btn" id="btnTranslate" type="button">🌐 แปลหน้านี้</button>
+              <button class="btn" id="btnClearStep" type="button">ล้างหน้านี้</button>
+            </div>
+          </div>
+          <div class="ssb-steps">
+            <span class="pill ${step===1?"active":""}">1 เลือกกล่อง</span>
+            <span class="pill ${step===2?"active":""}">2 วัสดุ/สี/ล็อก</span>
+            <span class="pill ${step===3?"active":""}">3 เลือกเครื่อง</span>
+            <span class="pill ${step===4?"active":""}">4 Checkout/Invoice</span>
+          </div>
+        </div>
+
+        <div id="ssbMain"></div>
+      </div>
+      <div class="toast" aria-live="polite" role="status"></div>
+    `;
+    $("#btnTranslate", app).addEventListener("click", translateThisPage);
+    return app;
+  }
+
+  // ===== STEP 1 =====
+  function step1(){
+    const root = renderShell(1);
+    const main = $("#ssbMain", root);
+
+    const order = ensureOrder();
+
+    main.innerHTML = `
+      <div class="ssb-card">
+        <div class="grid-3" id="boxGrid"></div>
+      </div>
+
+      <div class="sticky ssb-noPrint">
+        <div class="stickyInner">
+          <div class="sum">
+            <strong id="sumTitle">ยังไม่ได้เลือกขนาดกล่อง</strong>
+            <span id="sumSub">โปรดเลือก 1 รายการ แล้วกด “ไปต่อ Step 2”</span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" id="btnBack" type="button" disabled>ย้อนกลับ</button>
+            <button class="btn primary" id="btnNext" type="button" disabled>ไปต่อ Step 2</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const grid = $("#boxGrid", root);
+
+    function draw(){
+      const o = ensureOrder();
+      grid.innerHTML = "";
+      BOX_OPTIONS.forEach(opt=>{
+        const active = (o.box.size === opt.size);
+        const card = document.createElement("div");
+        card.className = "ssb-card";
+        card.innerHTML = `
+          <div class="ph">SSB SAFE BOX</div>
+          <div class="row" style="margin-top:10px">
+            <div>
+              <p class="title">ขนาด ${opt.size}</p>
+              <p class="hint">${opt.desc}</p>
+            </div>
+            <div class="price">${money(opt.price)} บาท</div>
+          </div>
+          <button class="selectBtn ${active?"active":""}" type="button">${active?"✓ เลือกแล้ว":"เลือกขนาดนี้"}</button>
+        `;
+        $("button", card).addEventListener("click", ()=>{
+          const x = ensureOrder();
+          x.box.size = opt.size;
+          x.box.price = opt.price;
+          saveOrder(x);
+          draw();
+          toast(root, `เลือกขนาดกล่อง “${opt.size}” แล้ว`);
+        });
+        grid.appendChild(card);
+      });
+      updateSticky();
+    }
+
+    function updateSticky(){
+      const o = ensureOrder();
+      const ok = !!o.box.size;
+      $("#sumTitle", root).textContent = ok ? `ขนาดกล่อง: ${o.box.size} • ${money(o.box.price)} บาท` : "ยังไม่ได้เลือกขนาดกล่อง";
+      $("#sumSub", root).textContent = ok ? "กดไปต่อเพื่อเลือกวัสดุ/สี/ระบบล็อก" : "โปรดเลือก 1 รายการ แล้วกด “ไปต่อ Step 2”";
+      $("#btnNext", root).disabled = !ok;
+    }
+
+    $("#btnNext", root).addEventListener("click", ()=>{
+      const o = ensureOrder();
+      if(!o.box.size){ toast(root,"กรุณาเลือกขนาดกล่องก่อน"); return; }
+      window.location.href = CFG.STEP2_URL;
+    });
+
+    $("#btnClearStep", root).addEventListener("click", ()=>{
+      const o = ensureOrder();
+      o.box.size = ""; o.box.price = 0;
+      saveOrder(o);
+      draw();
+      toast(root,"ล้างการเลือกขนาดกล่องแล้ว");
+    });
+
+    draw();
+  }
+
+  // ===== STEP 2 =====
+  function step2(){
+    const root = renderShell(2);
+    const main = $("#ssbMain", root);
+
+    const order = ensureOrder();
+    // lock fixed
+    order.lock_system.type = LOCK.type;
+    order.lock_system.price = LOCK.price;
+    saveOrder(order);
+
+    main.innerHTML = `
+      <div class="ssb-card">
+        <h2 style="margin:0 0 8px;font-size:17px">สรุปจาก Step 1</h2>
+        <div class="hint" id="boxInfo">—</div>
+      </div>
+
+      <div class="ssb-card">
+        <h2 style="margin:0 0 8px;font-size:17px">วัสดุภายนอก (Outside)</h2>
+        <div class="hint">เลือกประเภทและสี (ต้องมี หนังนกกระจอเทศ)</div>
+        <div class="grid-2">
+          <div>
+            <label>ประเภทวัสดุภายนอก</label>
+            <select id="outsideType"></select>
+          </div>
+          <div>
+            <label>สีภายนอก</label>
+            <div class="chips" id="outsideColors"></div>
+            <div class="price" id="outsidePrice" style="margin-top:8px">ราคา: 0 บาท</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ssb-card">
+        <h2 style="margin:0 0 8px;font-size:17px">วัสดุภายใน (Inside)</h2>
+        <div class="hint">เลือกประเภท → สีจะเปลี่ยนตามประเภท</div>
+        <div class="grid-2">
+          <div>
+            <label>ประเภทวัสดุภายใน</label>
+            <select id="insideType"></select>
+          </div>
+          <div>
+            <label>สีภายใน</label>
+            <div class="chips" id="insideColors"></div>
+            <div class="price" id="insidePrice" style="margin-top:8px">ราคา: 0 บาท</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ssb-card">
+        <h2 style="margin:0 0 8px;font-size:17px">Lock System</h2>
+        <div class="hint">ตามกฎ: Fingerprint เท่านั้น</div>
+        <div class="row">
+          <div>
+            <div style="font-weight:900">${LOCK.type}</div>
+            <div class="hint">ปลอดภัย • ใช้งานง่าย</div>
+          </div>
+          <div class="price">ราคา: ${money(LOCK.price)} บาท</div>
+        </div>
+      </div>
+
+      <div class="sticky ssb-noPrint">
+        <div class="stickyInner">
+          <div class="sum">
+            <strong id="sumTitle">กรุณาเลือกให้ครบ: ภายนอก + ภายใน</strong>
+            <span id="sumSub">เมื่อเลือกครบ ปุ่ม “ไปต่อ Step 3” จะเปิดให้กด</span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" id="btnBack" type="button">ย้อนกลับ</button>
+            <button class="btn primary" id="btnNext" type="button" disabled>ไปต่อ Step 3</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const outsideType = $("#outsideType", root);
+    const insideType  = $("#insideType", root);
+
+    function fillSelect(sel, catalog, selected){
+      sel.innerHTML = "";
+      const ph = document.createElement("option");
+      ph.value = ""; ph.textContent = "— กรุณาเลือก —";
+      sel.appendChild(ph);
+      catalog.forEach(it=>{
+        const op = document.createElement("option");
+        op.value = it.type; op.textContent = it.type;
+        sel.appendChild(op);
+      });
+      sel.value = selected || "";
+    }
+
+    function findByType(catalog, t){ return catalog.find(x=>x.type===t) || null; }
+
+    function renderChips(container, list, selected, onPick){
+      container.innerHTML = "";
+      list.forEach(v=>{
+        const b = document.createElement("button");
+        b.type="button";
+        b.className = "chip" + (v===selected?" active":"");
+        b.textContent = v;
+        b.addEventListener("click", ()=>onPick(v));
+        container.appendChild(b);
+      });
+    }
+
+    function renderBoxInfo(){
+      const o = ensureOrder();
+      $("#boxInfo", root).textContent = o.box.size ? `ขนาดกล่อง: ${o.box.size} • ${money(o.box.price)} บาท` : "ยังไม่ได้เลือกขนาดกล่อง — กรุณาย้อนกลับไป Step 1";
+    }
+
+    function renderOutside(){
+      const o = ensureOrder();
+      const t = outsideType.value || "";
+      const item = findByType(OUTSIDE_CATALOG, t);
+      const colors = $("#outsideColors", root);
+
+      if(!item){
+        colors.innerHTML = "";
+        $("#outsidePrice", root).textContent = "ราคา: 0 บาท";
+        o.materials.outside = { type:"", color:"", price:0 };
+        saveOrder(o);
+        updateSticky();
+        return;
+      }
+
+      // set type + price
+      o.materials.outside.type = item.type;
+      o.materials.outside.price = item.basePrice;
+      if(item.colors.indexOf(o.materials.outside.color) < 0) o.materials.outside.color = "";
+      saveOrder(o);
+
+      renderChips(colors, item.colors, o.materials.outside.color, (c)=>{
+        const x = ensureOrder();
+        x.materials.outside.type = item.type;
+        x.materials.outside.color = c;
+        x.materials.outside.price = item.basePrice;
+        saveOrder(x);
+        renderOutside();
+        updateSticky();
+        toast(root, `เลือกภายนอก: ${item.type} • สี ${c}`);
+      });
+
+      $("#outsidePrice", root).textContent = `ราคา: ${money(item.basePrice)} บาท`;
+    }
+
+    function renderInside(){
+      const o = ensureOrder();
+      const t = insideType.value || "";
+      const item = findByType(INSIDE_CATALOG, t);
+      const colors = $("#insideColors", root);
+
+      if(!item){
+        colors.innerHTML = "";
+        $("#insidePrice", root).textContent = "ราคา: 0 บาท";
+        o.materials.inside = { type:"", color:"", price:0 };
+        saveOrder(o);
+        updateSticky();
+        return;
+      }
+
+      o.materials.inside.type = item.type;
+      o.materials.inside.price = item.basePrice;
+      if(item.colors.indexOf(o.materials.inside.color) < 0) o.materials.inside.color = "";
+      saveOrder(o);
+
+      renderChips(colors, item.colors, o.materials.inside.color, (c)=>{
+        const x = ensureOrder();
+        x.materials.inside.type = item.type;
+        x.materials.inside.color = c;
+        x.materials.inside.price = item.basePrice;
+        saveOrder(x);
+        renderInside();
+        updateSticky();
+        toast(root, `เลือกภายใน: ${item.type} • สี ${c}`);
+      });
+
+      $("#insidePrice", root).textContent = `ราคา: ${money(item.basePrice)} บาท`;
+    }
+
+    function updateSticky(){
+      const o = ensureOrder();
+      const hasBox = !!o.box.size;
+      const outOk = !!(o.materials.outside.type && o.materials.outside.color);
+      const inOk  = !!(o.materials.inside.type && o.materials.inside.color);
+      const ok = hasBox && outOk && inOk;
+
+      const title = $("#sumTitle", root);
+      const sub = $("#sumSub", root);
+      const next = $("#btnNext", root);
+
+      if(!hasBox){
+        title.textContent = "ยังไม่ได้เลือกขนาดกล่องจาก Step 1";
+        sub.textContent = "โปรดย้อนกลับไปเลือกขนาดกล่องก่อน";
+        next.disabled = true;
+        return;
+      }
+      if(ok){
+        title.textContent = `ครบแล้ว: ภายนอก ${o.materials.outside.type} (${o.materials.outside.color}) • ภายใน ${o.materials.inside.type} (${o.materials.inside.color})`;
+        sub.textContent = "Lock: Fingerprint • กดไปต่อเพื่อเลือกเครื่อง (Apple/Samsung เท่านั้น)";
+        next.disabled = false;
+      }else{
+        const miss = [];
+        if(!outOk) miss.push("ภายนอก");
+        if(!inOk) miss.push("ภายใน");
+        title.textContent = "กรุณาเลือกให้ครบ: " + miss.join(" + ");
+        sub.textContent = "เมื่อเลือกครบ ปุ่ม “ไปต่อ Step 3” จะเปิดให้กด";
+        next.disabled = true;
+      }
+    }
+
+    // init
+    fillSelect(outsideType, OUTSIDE_CATALOG, ensureOrder().materials.outside.type);
+    fillSelect(insideType, INSIDE_CATALOG, ensureOrder().materials.inside.type);
+    renderBoxInfo();
+    renderOutside();
+    renderInside();
+    updateSticky();
+
+    outsideType.addEventListener("change", ()=>{
+      const o = ensureOrder();
+      o.materials.outside = { type: outsideType.value||"", color:"", price:0 };
+      saveOrder(o);
+      renderOutside();
+      updateSticky();
+    });
+
+    insideType.addEventListener("change", ()=>{
+      const o = ensureOrder();
+      o.materials.inside = { type: insideType.value||"", color:"", price:0 };
+      saveOrder(o);
+      renderInside();
+      updateSticky();
+    });
+
+    $("#btnBack", root).addEventListener("click", ()=>{ window.location.href = CFG.STEP1_URL; });
+    $("#btnNext", root).addEventListener("click", ()=>{
+      const o = ensureOrder();
+      if(!(o.box.size && o.materials.outside.color && o.materials.inside.color)){
+        toast(root, "กรุณาเลือกวัสดุและสีให้ครบก่อนนะครับ/ค่ะ");
+        return;
+      }
+      window.location.href = CFG.STEP3_URL;
+    });
+
+    $("#btnClearStep", root).addEventListener("click", ()=>{
+      const o = ensureOrder();
+      o.materials.outside = { type:"", color:"", price:0 };
+      o.materials.inside  = { type:"", color:"", price:0 };
+      o.lock_system.type = LOCK.type;
+      o.lock_system.price = LOCK.price;
+      saveOrder(o);
+      fillSelect(outsideType, OUTSIDE_CATALOG, "");
+      fillSelect(insideType, INSIDE_CATALOG, "");
+      renderOutside();
+      renderInside();
+      updateSticky();
+      toast(root, "ล้างการเลือกในหน้านี้แล้ว");
+    });
+  }
+
+  // ===== STEP 3 =====
+  function step3(){
+    const root = renderShell(3);
+    const main = $("#ssbMain", root);
+
+    main.innerHTML = `
+      <div class="ssb-card">
+        <h2 style="margin:0 0 8px;font-size:17px">กฎแบรนด์ SSB</h2>
+        <div class="hint">iOS/iPad = Apple เท่านั้น • Android = Samsung เท่านั้น • ห้ามยี่ห้ออื่นทั้งหมด</div>
+        <div class="summaryBox" style="margin-top:10px">
+          Tip: คุณแก้/เพิ่มรุ่น ราคา สี ความจุ ได้ง่ายในตัวแปร DEVICE_CATALOG (ไฟล์นี้ไฟล์เดียว)
+        </div>
+      </div>
+
+      <div class="ssb-card">
+        <h2 style="margin:0 0 8px;font-size:17px">เลือกเครื่องเก็บเงิน (Device)</h2>
+        <div class="grid-2">
+          <div>
+            <label>หมวดสินค้า</label>
+            <select id="category"></select>
+          </div>
+          <div>
+            <label>รุ่น (Model)</label>
+            <select id="model"></select>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="grid-2">
+          <div>
+            <label>สี (Color)</label>
+            <div class="chips" id="colors"></div>
+          </div>
+          <div>
+            <label>ความจุ (Storage)</label>
+            <div class="chips" id="storages"></div>
+          </div>
+        </div>
+
+        <div class="price" id="devicePrice" style="margin-top:10px">ราคา: 0 บาท</div>
+      </div>
+
+      <div class="sticky ssb-noPrint">
+        <div class="stickyInner">
+          <div class="sum">
+            <strong id="sumTitle">กรุณาเลือกให้ครบ: หมวด + รุ่น + สี + ความจุ</strong>
+            <span id="sumSub">เมื่อเลือกครบ ปุ่ม “ไปต่อ Step 4” จะเปิดให้กด</span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" id="btnBack" type="button">ย้อนกลับ</button>
+            <button class="btn primary" id="btnNext" type="button" disabled>ไปต่อ Step 4</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const catSel = $("#category", root);
+    const modelSel = $("#model", root);
+    const colorsEl = $("#colors", root);
+    const storEl = $("#storages", root);
+    const priceEl = $("#devicePrice", root);
+    const btnNext = $("#btnNext", root);
+
+    function fillCategory(){
+      catSel.innerHTML = "";
+      const ph = document.createElement("option"); ph.value=""; ph.textContent="— กรุณาเลือกหมวด —";
+      catSel.appendChild(ph);
+      DEVICE_CATALOG.categories.forEach(c=>{
+        const op=document.createElement("option");
+        op.value=c.key; op.textContent=c.label;
+        catSel.appendChild(op);
+      });
+    }
+
+    function fillModels(catKey){
+      modelSel.innerHTML = "";
+      const ph = document.createElement("option"); ph.value=""; ph.textContent="— กรุณาเลือกรุ่น —";
+      modelSel.appendChild(ph);
+      const cat = DEVICE_CATALOG.items[catKey];
+      if(!cat) return;
+      cat.models.forEach(m=>{
+        const op=document.createElement("option");
+        op.value=m.name; op.textContent=m.name;
+        modelSel.appendChild(op);
+      });
+    }
+
+    function getModel(catKey, name){
+      const cat = DEVICE_CATALOG.items[catKey];
+      if(!cat) return null;
+      return cat.models.find(m=>m.name===name) || null;
+    }
+
+    function renderChips(container, list, selected, onPick){
+      container.innerHTML = "";
+      list.forEach(v=>{
+        const b=document.createElement("button");
+        b.type="button";
+        b.className="chip"+(v===selected?" active":"");
+        b.textContent=v;
+        b.addEventListener("click", ()=>onPick(v));
+        container.appendChild(b);
+      });
+    }
+
+    function updatePriceAndOrder(){
+      const o = ensureOrder();
+      const catKey = catSel.value || "";
+      const modelName = modelSel.value || "";
+      let price = 0;
+
+      if(catKey){
+        const cat = DEVICE_CATALOG.items[catKey];
+        o.device.category = catKey;
+        o.device.os = cat ? cat.os : "";
+        o.device.type = cat ? cat.type : "";
+      }else{
+        o.device.category = ""; o.device.os=""; o.device.type="";
+      }
+
+      o.device.model = modelName;
+
+      if(catKey && modelName && o.device.storage){
+        const m = getModel(catKey, modelName);
+        if(m && m.priceMap && m.priceMap[o.device.storage]!=null){
+          price = Number(m.priceMap[o.device.storage]);
+        }
+      }
+
+      o.device.price = price;
+      saveOrder(o);
+      priceEl.textContent = "ราคา: " + money(price) + " บาท";
+      updateSticky();
+    }
+
+    function renderColorStorage(){
+      const o = ensureOrder();
+      const catKey = catSel.value || "";
+      const modelName = modelSel.value || "";
+      colorsEl.innerHTML = "";
+      storEl.innerHTML = "";
+
+      if(!catKey || !modelName){
+        priceEl.textContent = "ราคา: 0 บาท";
+        updatePriceAndOrder();
+        return;
+      }
+
+      const m = getModel(catKey, modelName);
+      if(!m) return;
+
+      if(m.colors.indexOf(o.device.color) < 0) o.device.color = "";
+      if(m.storages.indexOf(o.device.storage) < 0) o.device.storage = "";
+      saveOrder(o);
+
+      renderChips(colorsEl, m.colors, o.device.color, (c)=>{
+        const x=ensureOrder(); x.device.color=c; saveOrder(x);
+        renderColorStorage(); updatePriceAndOrder();
+        toast(root, "เลือกสี: " + c);
+      });
+
+      renderChips(storEl, m.storages, o.device.storage, (s)=>{
+        const x=ensureOrder(); x.device.storage=s; saveOrder(x);
+        renderColorStorage(); updatePriceAndOrder();
+        toast(root, "เลือกความจุ: " + s);
+      });
+
+      updatePriceAndOrder();
+    }
+
+    function updateSticky(){
+      const o = ensureOrder();
+      const ok = !!(o.device.category && o.device.model && o.device.color && o.device.storage);
+      $("#sumTitle", root).textContent = ok
+        ? `เลือกแล้ว: ${o.device.model} • สี ${o.device.color} • ${o.device.storage} • ${money(o.device.price)} บาท`
+        : "กรุณาเลือกให้ครบ: หมวด + รุ่น + สี + ความจุ";
+      $("#sumSub", root).textContent = ok
+        ? "กดไปต่อเพื่อกรอกข้อมูลลูกค้า/ตัวแทน และออก Invoice"
+        : "เมื่อเลือกครบ ปุ่ม “ไปต่อ Step 4” จะเปิดให้กด";
+      btnNext.disabled = !ok;
+    }
+
+    function restore(){
+      const o = ensureOrder();
+      fillCategory();
+      catSel.value = o.device.category || "";
+      fillModels(catSel.value||"");
+      modelSel.value = o.device.model || "";
+      renderColorStorage();
+      updateSticky();
+    }
+
+    catSel.addEventListener("change", ()=>{
+      const o=ensureOrder();
+      o.device.category = catSel.value||"";
+      o.device.model=""; o.device.color=""; o.device.storage=""; o.device.price=0;
+      const cat = DEVICE_CATALOG.items[o.device.category];
+      o.device.os = cat ? cat.os : "";
+      o.device.type = cat ? cat.type : "";
+      saveOrder(o);
+      fillModels(o.device.category);
+      modelSel.value="";
+      renderColorStorage();
+      updateSticky();
+    });
+
+    modelSel.addEventListener("change", ()=>{
+      const o=ensureOrder();
+      o.device.model = modelSel.value||"";
+      o.device.color=""; o.device.storage=""; o.device.price=0;
+      saveOrder(o);
+      renderColorStorage();
+      updateSticky();
+    });
+
+    $("#btnBack", root).addEventListener("click", ()=>{ window.location.href = CFG.STEP2_URL; });
+    btnNext.addEventListener("click", ()=>{
+      const o=ensureOrder();
+      if(!(o.device.category && o.device.model && o.device.color && o.device.storage)){
+        toast(root,"กรุณาเลือกให้ครบก่อนนะครับ/ค่ะ");
+        return;
+      }
+      window.location.href = CFG.STEP4_URL;
+    });
+
+    $("#btnClearStep", root).addEventListener("click", ()=>{
+      const o=ensureOrder();
+      o.device = { category:"", os:"", type:"", model:"", color:"", storage:"", price:0 };
+      saveOrder(o);
+      restore();
+      toast(root,"ล้างการเลือกเครื่องในหน้านี้แล้ว");
+    });
+
+    restore();
+  }
+
+  // ===== STEP 4 =====
+  async function step4(){
+    const root = renderShell(4);
+    const main = $("#ssbMain", root);
+
+    const o = ensureOrder();
+    // lock fixed safety
+    o.lock_system.type = LOCK.type; o.lock_system.price = LOCK.price;
+    computePricing(o); saveOrder(o);
+
+    main.innerHTML = `
+      <div class="ssb-card ssb-noPrint">
+        <h2 style="margin:0 0 8px;font-size:17px">สรุปรายการที่เลือก</h2>
+        <div class="hint" id="pickedHint">—</div>
+        <div class="summaryBox" style="margin-top:10px">
+          <div class="sumline"><span>จำนวน (qty)</span><strong id="sumQty">1</strong></div>
+          <div class="sumline"><span>Subtotal</span><strong id="sumSubtotal">0</strong></div>
+          <div class="sumline"><span>VAT 7%</span><strong id="sumVat">0</strong></div>
+          <div class="sumline"><span>Grand Total</span><strong class="total" id="sumGrand">0</strong></div>
+          <div class="hint">* Commission จะคำนวณและส่งไป Sheet แต่ไม่แสดงในสรุปยอด</div>
+        </div>
+      </div>
+
+      <div class="ssb-card ssb-noPrint">
+        <h2 style="margin:0 0 8px;font-size:17px">ข้อมูลลูกค้า</h2>
+        <div class="grid-2">
+          <div><label>ชื่อ-นามสกุล</label><input id="custName" placeholder="เช่น นายสมชาย ใจดี"/></div>
+          <div><label>เบอร์โทร</label><input id="custPhone" inputmode="tel" placeholder="เช่น 0812345678"/></div>
+          <div><label>อีเมล</label><input id="custEmail" inputmode="email" placeholder="เช่น name@email.com"/></div>
+          <div><label>จำนวน (qty)</label><input id="qty" inputmode="numeric" placeholder="1"/></div>
+        </div>
+        <div style="margin-top:12px">
+          <label>ที่อยู่จัดส่ง</label>
+          <textarea id="shipAddr" placeholder="กรอกที่อยู่จัดส่งให้ครบถ้วน"></textarea>
+        </div>
+      </div>
+
+      <div class="ssb-card ssb-noPrint">
+        <h2 style="margin:0 0 8px;font-size:17px">ข้อมูลตัวแทน</h2>
+        <div class="grid-2">
+          <div><label>ชื่อ-นามสกุลตัวแทน</label><input id="agentName" placeholder="เช่น คุณเอ ตัวแทน"/></div>
+          <div><label>เบอร์โทรตัวแทน</label><input id="agentPhone" inputmode="tel" placeholder="เช่น 089xxxxxxx"/></div>
+          <div><label>รหัสตัวแทน</label><input id="agentCode" placeholder="เช่น SSB-AG-001"/></div>
+          <div><label>commission_rate (รายบุคคล)</label><input id="commissionRate" inputmode="decimal" placeholder="เช่น 0.05 = 5%"/></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <label>อัปโหลดรูปบัตรตัวแทน (.jpg/.png)</label>
+          <input id="agentCard" type="file" accept="image/jpeg,image/png"/>
+          <div class="preview" id="cardPreview" style="display:none">
+            <strong style="display:block;margin-bottom:8px">ตัวอย่างบัตรตัวแทน (Preview)</strong>
+            <img id="cardImg" alt="Agent card preview"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="ssb-card ssb-noPrint">
+        <h2 style="margin:0 0 8px;font-size:17px">ส่งข้อมูล + ออก Invoice</h2>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn primary" id="btnSubmit" type="button">ยืนยันสั่งซื้อ และส่งข้อมูล</button>
+          <div id="statusBox" class="summaryBox">สถานะ: รอการส่ง</div>
+          <button class="btn" id="btnBack" type="button">ย้อนกลับ</button>
+        </div>
+        <div class="hint" style="margin-top:10px">
+          หมายเหตุ: ส่งด้วยโหมด no-cors เพื่อ “ส่งเข้า Google Sheet เสถียรที่สุด” (จึงอ่านผลตอบกลับไม่ได้)
+        </div>
+      </div>
+
+      <div id="ssbInvoiceWrap" style="display:none">
+        <div class="ssb-card" id="invoiceCard">
+          <div class="row">
+            <div>
+              <div style="font-size:18px;font-weight:900;color:var(--primary2)">ใบแจ้งหนี้ / Invoice</div>
+              <div class="hint" id="invCompany"></div>
+              <div class="hint" id="invContact"></div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-weight:900;color:var(--primary2)">QR Code</div>
+              <div class="hint">สแกนเพื่อมาที่บริษัท</div>
+              <img id="qrImg" style="width:160px;height:160px;border-radius:12px;border:1px solid var(--border)" alt="QR Code"/>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top:12px">
+            <div class="summaryBox">
+              <div style="font-weight:900;margin-bottom:6px">ข้อมูลลูกค้า</div>
+              <pre id="invCustomer" style="margin:0;white-space:pre-wrap;font-family:inherit"></pre>
+            </div>
+            <div class="summaryBox">
+              <div style="font-weight:900;margin-bottom:6px">ข้อมูลคำสั่งซื้อ</div>
+              <pre id="invMeta" style="margin:0;white-space:pre-wrap;font-family:inherit"></pre>
+            </div>
+          </div>
+
+          <div class="summaryBox" style="margin-top:12px">
+            <div style="font-weight:900;margin-bottom:8px">รายการสินค้า</div>
+            <div id="invItems"></div>
+            <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px">
+              <div class="sumline"><span>Subtotal</span><strong id="invSubtotal">0</strong></div>
+              <div class="sumline"><span>VAT 7%</span><strong id="invVat">0</strong></div>
+              <div class="sumline"><span>Grand Total</span><strong class="total" id="invGrand">0</strong></div>
+            </div>
+          </div>
+
+          <div class="ssb-noPrint" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+            <button class="btn primary" id="btnPrint" type="button">พิมพ์ / Save PDF</button>
+            <button class="btn" id="btnNewOrder" type="button">ทำรายการใหม่</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const el = (id)=>$("#"+id, root);
+
+    function setStatus(msg){
+      el("statusBox").textContent = msg;
+    }
+
+    function refreshPicked(){
+      const order = ensureOrder();
+      computePricing(order); saveOrder(order);
+
+      const parts=[];
+      if(order.box.size) parts.push(`กล่อง ${order.box.size}`);
+      if(order.materials.outside.type) parts.push(`ภายนอก ${order.materials.outside.type} (${order.materials.outside.color})`);
+      if(order.materials.inside.type) parts.push(`ภายใน ${order.materials.inside.type} (${order.materials.inside.color})`);
+      if(order.lock_system.type) parts.push(`Lock ${order.lock_system.type}`);
+      if(order.device.model) parts.push(`Device ${order.device.model} • ${order.device.color} • ${order.device.storage}`);
+
+      el("pickedHint").textContent = parts.length ? parts.join(" • ") : "ยังเลือกไม่ครบ (โปรดย้อนกลับ Step 1–3)";
+      el("sumQty").textContent = String(order.pricing.qty||1);
+      el("sumSubtotal").textContent = money(order.pricing.subtotal) + " บาท";
+      el("sumVat").textContent = money(order.pricing.vat) + " บาท";
+      el("sumGrand").textContent = money(order.pricing.grand_total) + " บาท";
+    }
+
+    function restoreForm(){
+      const order = ensureOrder();
+      el("custName").value = order.customer.full_name || "";
+      el("custPhone").value = order.customer.phone || "";
+      el("custEmail").value = order.customer.email || "";
+      el("shipAddr").value = order.customer.shipping_address || "";
+      el("agentName").value = order.agent.agent_name || "";
+      el("agentPhone").value = order.agent.agent_phone || "";
+      el("agentCode").value = order.agent.agent_code || "";
+      el("qty").value = String(order.pricing.qty||1);
+      el("commissionRate").value = (order.pricing.commission_rate!=null) ? String(order.pricing.commission_rate) : "";
+
+      const cardData = localStorage.getItem(CFG.AGENT_CARD_KEY);
+      if(cardData){
+        el("cardImg").src = cardData;
+        el("cardPreview").style.display = "block";
+      }else{
+        el("cardPreview").style.display = "none";
+      }
+      refreshPicked();
+      setStatus("สถานะ: รอการส่ง");
+    }
+
+    function persistFromForm(){
+      const order = ensureOrder();
+      order.customer.full_name = sanitizeText(el("custName").value);
+      order.customer.phone = sanitizeText(el("custPhone").value);
+      order.customer.email = sanitizeText(el("custEmail").value);
+      order.customer.shipping_address = sanitizeText(el("shipAddr").value);
+
+      order.agent.agent_name = sanitizeText(el("agentName").value);
+      order.agent.agent_phone = sanitizeText(el("agentPhone").value);
+      order.agent.agent_code = sanitizeText(el("agentCode").value);
+
+      order.pricing.qty = sanitizeNumber(el("qty").value, 1);
+      order.pricing.commission_rate = sanitizeNumber(el("commissionRate").value, 0);
+
+      computePricing(order);
+      saveOrder(order);
+      refreshPicked();
+    }
+
+    ["custName","custPhone","custEmail","shipAddr","agentName","agentPhone","agentCode","qty","commissionRate"]
+      .forEach(id=> el(id).addEventListener("input", persistFromForm));
+
+    el("agentCard").addEventListener("change", ()=>{
+      const f = el("agentCard").files && el("agentCard").files[0] ? el("agentCard").files[0] : null;
+      if(!f) return;
+      const okType = (f.type==="image/jpeg" || f.type==="image/png");
+      if(!okType){ setStatus("สถานะ: กรุณาอัปโหลด .jpg หรือ .png เท่านั้น"); el("agentCard").value=""; return; }
+      const r = new FileReader();
+      r.onload = ()=>{
+        const dataUrl = String(r.result||"");
+        if(!dataUrl){ setStatus("สถานะ: อ่านไฟล์ไม่สำเร็จ"); return; }
+        localStorage.setItem(CFG.AGENT_CARD_KEY, dataUrl);
+        el("cardImg").src = dataUrl;
+        el("cardPreview").style.display = "block";
+        setStatus("สถานะ: บันทึกรูปบัตรตัวแทนแล้ว");
+      };
+      r.onerror = ()=> setStatus("สถานะ: อ่านไฟล์ไม่สำเร็จ");
+      r.readAsDataURL(f);
+    });
+
+    function validateAll(){
+      persistFromForm();
+      const order = ensureOrder();
+      const cardData = localStorage.getItem(CFG.AGENT_CARD_KEY);
+
+      const missing=[];
+      if(!order.box.size) missing.push("ขนาดกล่อง");
+      if(!(order.materials.outside.type && order.materials.outside.color)) missing.push("วัสดุภายนอก");
+      if(!(order.materials.inside.type && order.materials.inside.color)) missing.push("วัสดุภายใน");
+      if(!order.device.model || !order.device.color || !order.device.storage) missing.push("Device");
+
+      if(!order.customer.full_name) missing.push("ชื่อลูกค้า");
+      if(!order.customer.phone) missing.push("เบอร์ลูกค้า");
+      if(!order.customer.email) missing.push("อีเมลลูกค้า");
+      if(!order.customer.shipping_address) missing.push("ที่อยู่จัดส่ง");
+
+      if(!order.agent.agent_name) missing.push("ชื่อตัวแทน");
+      if(!order.agent.agent_phone) missing.push("เบอร์ตัวแทน");
+      if(!order.agent.agent_code) missing.push("รหัสตัวแทน");
+      if(!cardData) missing.push("รูปบัตรตัวแทน");
+
+      return missing;
+    }
+
+    async function sendToSheet(){
+      const order = ensureOrder();
+      computePricing(order); saveOrder(order);
+
+      const fd = new FormData();
+      fd.append("created_at", sanitizeText(order.meta.created_at));
+      fd.append("order_id", sanitizeText(order.meta.order_id));
+      fd.append("customer_full_name", sanitizeText(order.customer.full_name));
+      fd.append("customer_phone", sanitizeText(order.customer.phone));
+      fd.append("customer_email", sanitizeText(order.customer.email));
+      fd.append("shipping_address", sanitizeText(order.customer.shipping_address));
+      fd.append("agent_name", sanitizeText(order.agent.agent_name));
+      fd.append("agent_phone", sanitizeText(order.agent.agent_phone));
+      fd.append("agent_code", sanitizeText(order.agent.agent_code));
+      fd.append("box_size", sanitizeText(order.box.size));
+      fd.append("box_price", String(Number(order.box.price||0)));
+      fd.append("outside_type", sanitizeText(order.materials.outside.type));
+      fd.append("outside_color", sanitizeText(order.materials.outside.color));
+      fd.append("outside_price", String(Number(order.materials.outside.price||0)));
+      fd.append("inside_type", sanitizeText(order.materials.inside.type));
+      fd.append("inside_color", sanitizeText(order.materials.inside.color));
+      fd.append("inside_price", String(Number(order.materials.inside.price||0)));
+      fd.append("lock_type", sanitizeText(order.lock_system.type));
+      fd.append("lock_price", String(Number(order.lock_system.price||0)));
+      fd.append("device_type", sanitizeText(order.device.type));
+      fd.append("device_os", sanitizeText(order.device.os));
+      fd.append("device_model", sanitizeText(order.device.model));
+      fd.append("device_color", sanitizeText(order.device.color));
+      fd.append("device_storage", sanitizeText(order.device.storage));
+      fd.append("device_price", String(Number(order.device.price||0)));
+      fd.append("qty", String(Number(order.pricing.qty||1)));
+      fd.append("subtotal", String(Number(order.pricing.subtotal||0)));
+      fd.append("vat", String(Number(order.pricing.vat||0)));
+      fd.append("grand_total", String(Number(order.pricing.grand_total||0)));
+      fd.append("commission_rate", String(Number(order.pricing.commission_rate||0)));
+      fd.append("commission", String(Number(order.pricing.commission||0)));
+
+      await fetch(CFG.GOOGLE_SHEET_WEBAPP_URL, {
+        method:"POST",
+        body: fd,
+        mode:"no-cors",
+        cache:"no-store",
+        credentials:"omit"
+      });
+    }
+
+    function buildInvoice(){
+      const order = ensureOrder();
+      computePricing(order);
+
+      el("invCompany").textContent = `${CFG.COMPANY_NAME} • ${CFG.COMPANY_ADDRESS}`;
+      el("invContact").textContent = CFG.COMPANY_INFO_LINE;
+
+      const qrSrc = "https://chart.googleapis.com/chart?cht=qr&chs=160x160&chl=" + encodeURIComponent(CFG.COMPANY_QR_TARGET_URL);
+      el("qrImg").src = qrSrc;
+
+      el("invCustomer").textContent =
+        `ชื่อลูกค้า: ${order.customer.full_name}\n`+
+        `เบอร์โทร: ${order.customer.phone}\n`+
+        `อีเมล: ${order.customer.email}\n`+
+        `ที่อยู่จัดส่ง: ${order.customer.shipping_address}`;
+
+      el("invMeta").textContent =
+        `Order ID: ${order.meta.order_id}\n`+
+        `Created: ${order.meta.created_at}\n`+
+        `Qty: ${order.pricing.qty}\n`+
+        `Agent: ${order.agent.agent_name} (${order.agent.agent_code})`;
+
+      const items = [
+        [`กล่อง: ${order.box.size}`, order.box.price],
+        [`ภายนอก: ${order.materials.outside.type} • สี ${order.materials.outside.color}`, order.materials.outside.price],
+        [`ภายใน: ${order.materials.inside.type} • สี ${order.materials.inside.color}`, order.materials.inside.price],
+        [`Lock: ${order.lock_system.type}`, order.lock_system.price],
+        [`Device: ${order.device.model} • ${order.device.color} • ${order.device.storage}`, order.device.price],
+      ];
+
+      el("invItems").innerHTML = items.map(([t,p])=>
+        `<div class="sumline"><span>${t}</span><strong>${money(p)} บาท</strong></div>`
+      ).join("");
+
+      el("invSubtotal").textContent = money(order.pricing.subtotal) + " บาท";
+      el("invVat").textContent = money(order.pricing.vat) + " บาท";
+      el("invGrand").textContent = money(order.pricing.grand_total) + " บาท";
+
+      $("#ssbInvoiceWrap", root).style.display = "block";
+    }
+
+    el("btnBack").addEventListener("click", ()=>{ window.location.href = CFG.STEP3_URL; });
+
+    el("btnSubmit").addEventListener("click", async ()=>{
+      const miss = validateAll();
+      if(miss.length){
+        setStatus("สถานะ: กรุณากรอก/เลือกให้ครบ (" + miss.join(", ") + ")");
+        return;
+      }
+
+      el("btnSubmit").disabled = true;
+      el("btnSubmit").textContent = "กำลังส่ง...";
+      setStatus("สถานะ: กำลังส่งข้อมูลไป Google Sheet...");
+
+      try{
+        await sendToSheet(); // no-cors: ไม่ throw = ถือว่าส่งสำเร็จ
+        setStatus("สถานะ: ส่งข้อมูลแล้ว ✅ (เลื่อนลงเพื่อพิมพ์ Invoice)");
+        buildInvoice();
+        window.scrollTo({ top: document.body.scrollHeight, behavior:"smooth" });
+      }catch(e){
+        setStatus("สถานะ: ส่งไม่สำเร็จ กรุณาลองใหม่");
+      }finally{
+        setTimeout(()=>{
+          el("btnSubmit").disabled = false;
+          el("btnSubmit").textContent = "ยืนยันสั่งซื้อ และส่งข้อมูล";
+        }, 1500);
+      }
+    });
+
+    // invoice buttons
+    // (ปุ่มอยู่หลัง buildInvoice แต่เราผูกไว้แบบ delegation)
+    root.addEventListener("click", (ev)=>{
+      const t = ev.target;
+      if(t && t.id==="btnPrint"){ window.print(); }
+      if(t && t.id==="btnNewOrder"){
+        localStorage.removeItem(CFG.STORE_KEY);
+        localStorage.removeItem(CFG.AGENT_CARD_KEY);
+        window.location.href = CFG.STEP1_URL;
+      }
+    });
+
+    $("#btnClearStep", root).addEventListener("click", ()=>{
+      // ล้างเฉพาะข้อมูลฟอร์ม/บัตร ไม่ล้างของเลือก (ไว้แก้ฟอร์มใหม่)
+      const order = ensureOrder();
+      order.customer = { full_name:"", phone:"", email:"", shipping_address:"" };
+      order.agent = { agent_name:"", agent_phone:"", agent_code:"" };
+      order.pricing.commission_rate = 0;
+      localStorage.removeItem(CFG.AGENT_CARD_KEY);
+      saveOrder(order);
+      restoreForm();
+      toast(root, "ล้างข้อมูลฟอร์มในหน้านี้แล้ว");
+    });
+
+    restoreForm();
+  }
+
+  // ===== BOOT =====
+  function boot(){
+    const host = document.getElementById("ssbApp");
+    if(!host) return;
+
+    const step = Number(host.getAttribute("data-step") || "1");
+    if(step===1) step1();
+    if(step===2) step2();
+    if(step===3) step3();
+    if(step===4) step4();
+  }
+
+  document.addEventListener("DOMContentLoaded", boot);
+})();
