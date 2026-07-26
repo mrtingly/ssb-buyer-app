@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="เข้าสู่ระบบตัวแทน SSB">
+  <title>เข้าสู่ระบบตัวแทน SSB</title>
+  <style>
+    :root{--primary:#1769d2;--primary-dark:#0d4fa8;--ink:#102033;--muted:#66778a;--line:#d9e6f4;--bg:#f4f9ff;--card:#fff;--danger:#a61f1f;--success:#146b43;--shadow:0 22px 55px rgba(22,78,137,.14)}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Thai",sans-serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(68,151,242,.22),transparent 34%),linear-gradient(180deg,#fbfdff,var(--bg));display:grid;place-items:center;padding:18px}
+    button,input{font:inherit}.shell{width:min(100%,980px);display:grid;grid-template-columns:1fr 1fr;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:30px;overflow:hidden;box-shadow:var(--shadow)}
+    .visual{padding:42px;background:linear-gradient(145deg,#0e57b5,#247fe5);color:#fff;position:relative;overflow:hidden}.visual:after{content:"SSB";position:absolute;right:-18px;bottom:-34px;font-size:9rem;font-weight:900;color:rgba(255,255,255,.08)}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;background:#fff;color:var(--primary-dark);font-weight:900}.brand strong{font-size:1.25rem}.brand small{display:block;opacity:.78;margin-top:2px}
+    .visual h1{font-size:clamp(2.1rem,5vw,3.5rem);line-height:1.04;margin:64px 0 16px}.visual p{line-height:1.8;opacity:.88;max-width:36rem}.path{display:grid;gap:10px;margin-top:28px}.path div{display:flex;align-items:center;gap:10px}.dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.18);font-weight:900}
+    .panel{padding:42px}.panel h2{margin:0 0 8px;font-size:1.8rem}.panel>p{margin:0 0 26px;color:var(--muted)}label{display:block;font-weight:800;margin:15px 0 7px}input{width:100%;min-height:50px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none}input:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(23,105,210,.11)}
+    .password-wrap{position:relative}.password-wrap input{padding-right:72px}.toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--primary-dark);font-size:.8rem;font-weight:800;cursor:pointer;padding:8px}
+    .message{display:none;margin:0 0 15px;padding:12px 14px;border-radius:13px;font-weight:700;line-height:1.5}.message.error{display:block;color:var(--danger);background:#fff0f0;border:1px solid #ffd0d0}.message.success{display:block;color:var(--success);background:#edf9f3;border:1px solid #c5ead6}
+    .login-btn{width:100%;min-height:53px;margin-top:22px;border:0;border-radius:16px;color:#fff;background:linear-gradient(135deg,#2c86ee,var(--primary-dark));font-weight:900;cursor:pointer;box-shadow:0 12px 26px rgba(23,105,210,.24)}.login-btn:disabled{opacity:.6;cursor:not-allowed}
+    .links{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:18px}.links a{color:var(--primary-dark);font-weight:800;text-decoration:none;font-size:.9rem}.note{margin-top:30px;padding:13px;border-radius:14px;background:#f7fbff;border:1px solid var(--line);color:var(--muted);font-size:.82rem;line-height:1.55}
+    @media(max-width:760px){body{padding:10px}.shell{grid-template-columns:1fr;border-radius:23px}.visual{padding:24px}.visual h1{margin:34px 0 12px;font-size:2.2rem}.path{display:none}.panel{padding:26px 18px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="visual">
+      <div class="brand"><div class="logo">SSB</div><div><strong>ระบบตัวแทน SSB</strong><small>บริษัท สยามทำ จำกัด</small></div></div>
+      <h1>ยินดีต้อนรับ<br>กลับเข้าสู่ระบบ</h1>
+      <p>เข้าสู่ระบบเพื่ออบรม ทำแบบทดสอบ ตรวจสอบสถานะการอนุมัติ และใช้งานแดชบอร์ดตัวแทนของคุณ</p>
+      <div class="path">
+        <div><span class="dot">1</span><span>สมัครบัญชีตัวแทน</span></div>
+        <div><span class="dot">2</span><span>อบรมและทำแบบทดสอบ</span></div>
+        <div><span class="dot">3</span><span>รอแอดมินตรวจสอบ</span></div>
+        <div><span class="dot">4</span><span>เปิดใช้งานแดชบอร์ดเต็มรูปแบบ</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>เข้าสู่ระบบตัวแทน</h2>
+      <p>กรอก Username และ Password ที่ใช้สมัคร</p>
+      <div id="message" class="message" role="alert" aria-live="polite"></div>
+      <form id="loginForm" novalidate>
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" required>
+
+        <label for="password">Password</label>
+        <div class="password-wrap">
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+          <button id="togglePassword" class="toggle" type="button">แสดง</button>
+        </div>
+
+        <button id="loginButton" class="login-btn" type="submit">เข้าสู่ระบบ</button>
+      </form>
+
+      <div class="links">
+        <a href="agent-register.html">ยังไม่มีบัญชี? สมัครตัวแทน</a>
+        <a href="#" id="forgotLink">ลืม Password</a>
+      </div>
+
+      <div class="note">ระบบเวอร์ชันทดลองนี้ตรวจสอบข้อมูลจากอุปกรณ์เดียวกับที่ใช้สมัคร เมื่อเชื่อมฐานข้อมูลกลางแล้ว ผู้ใช้จะเข้าสู่ระบบจากอุปกรณ์ใดก็ได้</div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      "use strict";
+      const APPLICATIONS_KEY="ssb_agent_applications_v1";
+      const SESSION_KEY="ssb_agent_session_v1";
+      const form=document.getElementById("loginForm");
+      const message=document.getElementById("message");
+      const button=document.getElementById("loginButton");
+      const password=document.getElementById("password");
+
+      function show(type,text){message.className="message "+type;message.textContent=text}
+      function getApplications(){try{const data=JSON.parse(localStorage.getItem(APPLICATIONS_KEY)||"[]");return Array.isArray(data)?data:[]}catch(e){return[]}}
+      function routeByStatus(agent){
+        if(agent.adminApproved===true||agent.status==="approved") return "agent-dashboard.html";
+        if(agent.examPassed===true||agent.status==="waiting_approval") return "agent-waiting.html";
+        if(agent.examUnlocked===true||Number(agent.trainingProgress)>=100) return "agent-exam.html";
+        return "agent-learning.html";
+      }
+
+      document.getElementById("togglePassword").addEventListener("click",function(){
+        const showPassword=password.type==="password";
+        password.type=showPassword?"text":"password";
+        this.textContent=showPassword?"ซ่อน":"แสดง";
+      });
+
+      document.getElementById("forgotLink").addEventListener("click",function(event){
+        event.preventDefault();
+        show("error","ระบบกู้คืน Password จะเชื่อมต่อในขั้นตอนฐานข้อมูลกลาง กรุณาติดต่อแอดมินชั่วคราว");
+      });
+
+      form.addEventListener("submit",function(event){
+        event.preventDefault();
+        message.className="message";
+        const username=document.getElementById("username").value.trim().toLowerCase();
+        const enteredPassword=password.value;
+        if(!username||!enteredPassword){show("error","กรุณากรอก Username และ Password");return}
+
+        const agent=getApplications().find(function(item){return String(item.username||"").toLowerCase()===username});
+        if(!agent||agent.password!==enteredPassword){show("error","Username หรือ Password ไม่ถูกต้อง");return}
+        if(agent.status==="suspended"||agent.status==="rejected"){show("error","บัญชีนี้ยังไม่สามารถเข้าใช้งานได้ กรุณาติดต่อแอดมิน");return}
+
+        button.disabled=true;button.textContent="กำลังเข้าสู่ระบบ...";
+        const session={applicationId:agent.applicationId,username:agent.username,loginAt:new Date().toISOString()};
+        localStorage.setItem(SESSION_KEY,JSON.stringify(session));
+        localStorage.setItem("ssb_current_agent_v1",agent.applicationId);
+        const destination=routeByStatus(agent);
+        show("success","เข้าสู่ระบบสำเร็จ กำลังเปิดหน้าของคุณ");
+        setTimeout(function(){window.location.href=destination},700);
+      });
+    })();
+  </script>
+</body>
+</html>
