@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="สมัครเป็นตัวแทนจำหน่าย SSB ของบริษัท สยามทำ จำกัด">
+  <title>สมัครเป็นตัวแทน SSB</title>
+  <style>
+    :root {
+      --primary: #1769d2;
+      --primary-dark: #0d4fa8;
+      --primary-soft: #eaf4ff;
+      --ink: #102033;
+      --muted: #617184;
+      --line: #d8e5f3;
+      --card: #ffffff;
+      --bg: #f4f9ff;
+      --danger: #c62828;
+      --success: #16794a;
+      --shadow: 0 18px 50px rgba(28, 80, 135, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(93, 173, 255, 0.22), transparent 34%),
+        linear-gradient(180deg, #f8fcff 0%, var(--bg) 100%);
+    }
+
+    button, input, textarea { font: inherit; }
+
+    .page-shell {
+      width: min(100%, 1120px);
+      margin: 0 auto;
+      padding: 20px 16px 48px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 17px;
+      background: linear-gradient(145deg, #2f8cff, #0d57b8);
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      box-shadow: 0 12px 28px rgba(23, 105, 210, 0.28);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.1rem, 3vw, 1.45rem);
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .login-link {
+      color: var(--primary-dark);
+      text-decoration: none;
+      font-weight: 800;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.84);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 0.88fr 1.12fr;
+      gap: 26px;
+      align-items: start;
+    }
+
+    .intro-card,
+    .form-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(208, 226, 244, 0.95);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .intro-card {
+      padding: 30px;
+      position: sticky;
+      top: 18px;
+      overflow: hidden;
+    }
+
+    .intro-card::after {
+      content: "SSB";
+      position: absolute;
+      right: -16px;
+      bottom: -32px;
+      font-size: 8rem;
+      line-height: 1;
+      font-weight: 900;
+      color: rgba(23, 105, 210, 0.055);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+      font-weight: 800;
+      font-size: 0.82rem;
+    }
+
+    .intro-card h2 {
+      margin: 16px 0 12px;
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      line-height: 1.06;
+    }
+
+    .intro-card > p {
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 22px;
+    }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .step-number {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      color: #fff;
+      background: var(--primary);
+      font-weight: 900;
+    }
+
+    .step strong { display: block; margin-top: 2px; }
+    .step span { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+
+    .form-card { padding: 28px; }
+
+    .form-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 22px;
+    }
+
+    .form-heading h2 { margin: 0 0 5px; font-size: 1.6rem; }
+    .form-heading p { margin: 0; color: var(--muted); }
+
+    .status-chip {
+      white-space: nowrap;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #edf7f2;
+      color: var(--success);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .section-title {
+      margin: 26px 0 14px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--line);
+      font-size: 1rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+
+    .required { color: var(--danger); }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 13px 14px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+      transition: 0.18s ease;
+    }
+
+    textarea { min-height: 105px; resize: vertical; }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(23, 105, 210, 0.11);
+    }
+
+    .help {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 76px; }
+
+    .toggle-password {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: var(--primary-dark);
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 22px 0 16px;
+      padding: 14px;
+      border-radius: 15px;
+      background: #f7fbff;
+      border: 1px solid var(--line);
+    }
+
+    .consent input {
+      width: 19px;
+      height: 19px;
+      margin-top: 2px;
+      flex: 0 0 auto;
+    }
+
+    .consent label {
+      margin: 0;
+      font-weight: 500;
+      color: #45566a;
+      line-height: 1.55;
+    }
+
+    .message {
+      display: none;
+      margin: 0 0 15px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .message.error {
+      display: block;
+      color: #8c1e1e;
+      background: #fff0f0;
+      border: 1px solid #ffd0d0;
+    }
+
+    .message.success {
+      display: block;
+      color: #12623c;
+      background: #edf9f3;
+      border: 1px solid #bfe9d3;
+    }
+
+    .submit-btn {
+      width: 100%;
+      min-height: 54px;
+      border: 0;
+      border-radius: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, #2c86ee, var(--primary-dark));
+      font-weight: 900;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(23, 105, 210, 0.25);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 820px) {
+      .hero { grid-template-columns: 1fr; }
+      .intro-card { position: static; }
+    }
+
+    @media (max-width: 620px) {
+      .page-shell { padding: 14px 10px 34px; }
+      .topbar { align-items: flex-start; }
+      .brand-mark { width: 46px; height: 46px; }
+      .brand p { display: none; }
+      .login-link { font-size: 0.84rem; padding: 9px 11px; }
+      .intro-card, .form-card { border-radius: 22px; }
+      .intro-card { padding: 22px; }
+      .form-card { padding: 20px 15px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .form-heading { display: block; }
+      .status-chip { display: inline-flex; margin-top: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">SSB</div>
+        <div>
+          <h1>ระบบตัวแทน SSB</h1>
+          <p>บริษัท สยามทำ จำกัด</p>
+        </div>
+      </div>
+      <a class="login-link" href="agent-login.html">เข้าสู่ระบบตัวแทน</a>
+    </header>
+
+    <main class="hero">
+      <section class="intro-card">
+        <span class="eyebrow">เปิดรับสมัครตัวแทน</span>
+        <h2>เริ่มต้นเส้นทางตัวแทน SSB</h2>
+        <p>
+          สมัครบัญชีของคุณ จากนั้นเข้าสู่ระบบเพื่อเรียนหลักสูตร อบรมให้ครบ ทำแบบทดสอบ
+          และรอการตรวจสอบจากบริษัทก่อนเปิดใช้งานแดชบอร์ดตัวแทนอย่างเป็นทางการ
+        </p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div><strong>สมัครสมาชิก</strong><span>สร้าง Username และ Password ของตนเอง</span></div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div><strong>เข้าอบรม</strong><span>เรียนรู้สินค้า วิธีขาย และข้อกำหนดของบริษัท</span></div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div><strong>ทำแบบทดสอบ</strong><span>ผ่านเกณฑ์ที่กำหนดก่อนส่งผลให้แอดมิน</span></div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div><strong>รับการอนุมัติ</strong><span>เปิดแดชบอร์ด รหัสตัวแทน และระบบทีมงาน</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="form-heading">
+          <div>
+            <h2>สมัครเป็นตัวแทน SSB</h2>
+            <p>กรอกข้อมูลให้ครบถ้วนและตรงตามความเป็นจริง</p>
+          </div>
+          <span class="status-chip">ขั้นตอนที่ 1</span>
+        </div>
+
+        <div id="formMessage" class="message" role="alert" aria-live="polite"></div>
+
+        <form id="agentRegisterForm" novalidate>
+          <h3 class="section-title">ข้อมูลส่วนตัว</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="firstName">ชื่อ <span class="required">*</span></label>
+              <input id="firstName" name="firstName" type="text" autocomplete="given-name" required>
+            </div>
+            <div class="field">
+              <label for="lastName">นามสกุล <span class="required">*</span></label>
+              <input id="lastName" name="lastName" type="text" autocomplete="family-name" required>
+            </div>
+            <div class="field">
+              <label for="citizenId">เลขบัตรประชาชน 13 หลัก <span class="required">*</span></label>
+              <input id="citizenId" name="citizenId" type="text" inputmode="numeric" maxlength="13" pattern="[0-9]{13}" required>
+            </div>
+            <div class="field">
+              <label for="phone">เบอร์โทรศัพท์ <span class="required">*</span></label>
+              <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="10" required>
+            </div>
+            <div class="field full">
+              <label for="email">อีเมล <span class="required">*</span></label>
+              <input id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="field full">
+              <label for="address">ที่อยู่ปัจจุบัน <span class="required">*</span></label>
+              <textarea id="address" name="address" autocomplete="street-address" required></textarea>
+            </div>
+          </div>
+
+          <h3 class="section-title">ข้อมูลสายงาน</h3>
+          <div class="form-grid">
+            <div class="field full">
+              <label for="referralCode">รหัสผู้แนะนำ / รหัสแม่ทีม</label>
+              <input id="referralCode" name="referralCode" type="text" placeholder="กรอกเมื่อมีผู้แนะนำ">
+              <small class="help">ปล่อยว่างได้ หากสมัครโดยตรงกับบริษัท</small>
+            </div>
+          </div>
+
+          <h3 class="section-title">ข้อมูลเข้าสู่ระบบ</h3>
+          <div class="form-grid">
+            <div class="field full">
+              <label for="username">Username <span class="required">*</span></label>
+              <input id="username" name="username" type="text" autocomplete="username" minlength="4" maxlength="30" required>
+              <small class="help">ใช้ตัวอักษรภาษาอังกฤษ ตัวเลข จุด ขีดกลาง หรือขีดล่าง</small>
+            </div>
+            <div class="field">
+              <label for="password">Password <span class="required">*</span></label>
+              <div class="password-wrap">
+                <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+                <button class="toggle-password" type="button" data-target="password">แสดง</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="confirmPassword">ยืนยัน Password <span class="required">*</span></label>
+              <div class="password-wrap">
+                <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required>
+                <button class="toggle-password" type="button" data-target="confirmPassword">แสดง</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="consent">
+            <input id="consent" name="consent" type="checkbox" required>
+            <label for="consent">
+              ข้าพเจ้ายืนยันว่าข้อมูลทั้งหมดเป็นความจริง และยินยอมให้บริษัท สยามทำ จำกัด
+              ใช้ข้อมูลนี้เพื่อพิจารณาการสมัคร อบรม สอบ และอนุมัติสถานะตัวแทน
+            </label>
+          </div>
+
+          <button id="submitButton" class="submit-btn" type="submit">สมัครเป็นตัวแทน SSB</button>
+        </form>
+
+        <p class="footer-note">
+          เวอร์ชันทดลองนี้บันทึกข้อมูลไว้ในอุปกรณ์ของผู้สมัคร ก่อนเชื่อมต่อฐานข้อมูลกลางของบริษัท
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const STORAGE_KEY = "ssb_agent_applications_v1";
+      const form = document.getElementById("agentRegisterForm");
+      const messageBox = document.getElementById("formMessage");
+      const submitButton = document.getElementById("submitButton");
+
+      function showMessage(type, text) {
+        messageBox.className = "message " + type;
+        messageBox.textContent = text;
+        messageBox.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      function getApplications() {
+        try {
+          const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+          return Array.isArray(data) ? data : [];
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function normalizeDigits(value) {
+        return String(value || "").replace(/\D/g, "");
+      }
+
+      function generateApplicationId() {
+        return "SSB-AG-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(Math.random() * 900 + 100);
+      }
+
+      document.querySelectorAll(".toggle-password").forEach(function (button) {
+        button.addEventListener("click", function () {
+          const target = document.getElementById(button.dataset.target);
+          const shouldShow = target.type === "password";
+          target.type = shouldShow ? "text" : "password";
+          button.textContent = shouldShow ? "ซ่อน" : "แสดง";
+        });
+      });
+
+      document.getElementById("citizenId").addEventListener("input", function (event) {
+        event.target.value = normalizeDigits(event.target.value).slice(0, 13);
+      });
+
+      document.getElementById("phone").addEventListener("input", function (event) {
+        event.target.value = normalizeDigits(event.target.value).slice(0, 10);
+      });
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        messageBox.className = "message";
+        messageBox.textContent = "";
+
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const citizenId = normalizeDigits(data.citizenId);
+        const phone = normalizeDigits(data.phone);
+        const username = String(data.username || "").trim().toLowerCase();
+        const password = String(data.password || "");
+        const confirmPassword = String(data.confirmPassword || "");
+
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          showMessage("error", "กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน");
+          return;
+        }
+
+        if (!/^\d{13}$/.test(citizenId)) {
+          showMessage("error", "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก");
+          return;
+        }
+
+        if (!/^0\d{8,9}$/.test(phone)) {
+          showMessage("error", "กรุณาตรวจสอบรูปแบบเบอร์โทรศัพท์");
+          return;
+        }
+
+        if (!/^[a-z0-9._-]{4,30}$/.test(username)) {
+          showMessage("error", "Username ต้องมี 4–30 ตัว และใช้เฉพาะภาษาอังกฤษ ตัวเลข จุด ขีดกลาง หรือขีดล่าง");
+          return;
+        }
+
+        if (password.length < 8) {
+          showMessage("error", "Password ต้องมีอย่างน้อย 8 ตัวอักษร");
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          showMessage("error", "Password และการยืนยัน Password ไม่ตรงกัน");
+          return;
+        }
+
+        const applications = getApplications();
+        const duplicate = applications.find(function (item) {
+          return item.username === username || item.citizenId === citizenId || item.email === String(data.email).trim().toLowerCase();
+        });
+
+        if (duplicate) {
+          showMessage("error", "พบ Username เลขบัตรประชาชน หรืออีเมลนี้ในระบบแล้ว");
+          return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "กำลังบันทึกข้อมูล...";
+
+        const application = {
+          applicationId: generateApplicationId(),
+          firstName: String(data.firstName).trim(),
+          lastName: String(data.lastName).trim(),
+          citizenId: citizenId,
+          phone: phone,
+          email: String(data.email).trim().toLowerCase(),
+          address: String(data.address).trim(),
+          referralCode: String(data.referralCode || "").trim().toUpperCase(),
+          username: username,
+          password: password,
+          status: "registered",
+          trainingProgress: 0,
+          examUnlocked: false,
+          examPassed: false,
+          adminApproved: false,
+          registeredAt: new Date().toISOString()
+        };
+
+        applications.push(application);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
+        localStorage.setItem("ssb_current_agent_v1", application.applicationId);
+
+        showMessage("success", "สมัครสำเร็จ เลขที่ใบสมัคร " + application.applicationId + " ระบบกำลังพาไปหน้าเข้าสู่ระบบ");
+        form.reset();
+
+        setTimeout(function () {
+          window.location.href = "agent-login.html";
+        }, 1400);
+      });
+    })();
+  </script>
+</body>
+</html>
